@@ -20,7 +20,7 @@ const NewYorkTimes = () => {
   const [selectedStoriesIds, setSelectedStoriesIds] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("");
 
-  const { data, error, isLoading } = useData<Times>("/home.json?");
+  const { data, error, isLoading } = useData<Times>("topstories/v2/home.json");
 
   useEffect(() => {
     if (data) {

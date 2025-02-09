@@ -11,7 +11,7 @@ const useData = <T>(endpoint: string) => {
       try {
         setIsLoading(true);
         const response = await axios.get(
-          `https://api.nytimes.com/svc/topstories/v2/${endpoint}`,
+          endpoint,
           {
             params: {
               "api-key": "eo8G7acBqLqBHRGkrrV3GKq47GhYtMIH",
@@ -31,7 +31,7 @@ const useData = <T>(endpoint: string) => {
     };
 
     fetchNewYorkTimes();
-  }, []);
+  }, [endpoint]);
 
   return { data, isLoading, error };
 };
