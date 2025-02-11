@@ -40,6 +40,16 @@ const NewYorkTimes = () => {
     }
   }, [data]);
 
+  useEffect(() => {
+    if (selectedCategory) {
+      setFilteredStories(
+        stories.filter((story) => story.subsection === selectedCategory)
+      );
+    } else {
+      setFilteredStories(stories);
+    }
+  });
+
   const handleSearch = () => {
     setSearchTerm(query.trim());
   };
