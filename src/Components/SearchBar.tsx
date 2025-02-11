@@ -1,25 +1,33 @@
-import React, { useState } from "react";
-import useData from "../Hooks/useData";
+import React from "react";
 
-const SearchBar = () => {
-  const [query, setQuery] = useState<string>("");
-  const [filter, setFilter] = useState<string>("");
-  const { data, isLoading, error } = useData(
-    `/articlesearch.json?q=${query}&fq=${filter}`
+interface SearchBarProps {
+  query: string;
+  setQuery: React.Dispatch<React.SetStateAction<string>>;
+  handleSearch: () => void;
+}
+
+const SearchBar: React.FC<SearchBarProps> = ({
+  query,
+  setQuery,
+  handleSearch,
+}) => {
+  return (
+    <div className="flex items-center gap-2 border-b border-gray-300 pb-2">
+      <input
+        type="text"
+        placeholder="Search Articles"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className="w-full text-lg px-3 py-2 border-none focus:outline-none font-serif"
+      />
+      <button
+        onClick={handleSearch}
+        className="px-5 py-2 text-lg font-semibold font-serif bg-black text-white tracking-wide uppercase transition hover:bg-gray-800"
+      >
+        Search
+      </button>
+    </div>
   );
-  if (isLoading) {
-    ("This is loading");
-  }
-
-  if (error) {
-    ("An unknown error has occurred");
-  }
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setQuery(e.target.value ? e.target.value : "");
-  };
-
-  return <input type="text" placeholder="Search Article" />;
 };
 
 export default SearchBar;

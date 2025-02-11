@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import useData from "../Hooks/useData";
+import SearchBar from "./SearchBar";
 
 interface Times {
   id: string;
@@ -11,6 +12,8 @@ interface Times {
   published_date: string;
   subsection: string;
   multimedia: [{ url: string }];
+  snippet: string;
+  pub_date: string;
 }
 
 const NewYorkTimes = () => {
@@ -19,53 +22,26 @@ const NewYorkTimes = () => {
   const [selectedStory, setSelectedStory] = useState<Times | null>(null);
   const [selectedStoriesIds, setSelectedStoriesIds] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [query, setQuery] = useState<string>("");
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const { data, error, isLoading } = useData<Times>("topstories/v2/home.json");
+  const { data, error, isLoading } = useData<Times>(
+    searchTerm
+      ? `search/v2/articlesearch.json?q=${searchTerm}`
+      : "topstories/v2/home.json"
+  );
 
   useEffect(() => {
     if (data) {
       setStories(data);
       setFilteredStories(data);
-    } else {
-      if (error) {
-        ("An unknown error has occured on home page");
-      }
+    } else if (error) {
+      console.error("An unknown error has occurred on home page");
     }
   }, [data]);
 
-  console.log("NewYorkTimes", data);
-
-  useEffect(() => {
-    if (selectedCategory) {
-      setFilteredStories(
-        stories.filter((story) => story.subsection === selectedCategory)
-      );
-    } else {
-      setFilteredStories(stories);
-    }
-  }, [selectedCategory, stories]);
-
-  const handleSelectedStory = (story: Times) => {
-    setSelectedStory(story);
-  };
-
-  const handleDeleteStory = (
-    e: React.MouseEvent<HTMLButtonElement>,
-    id: string
-  ) => {
-    e.stopPropagation();
-    setStories(stories.filter((story) => story.id !== id));
-  };
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    id: string
-  ) => {
-    setSelectedStoriesIds(
-      e.target.checked
-        ? [...selectedStoriesIds, id]
-        : selectedStoriesIds.filter((storyId) => storyId !== id)
-    );
+  const handleSearch = () => {
+    setSearchTerm(query.trim());
   };
 
   return (
@@ -78,25 +54,34 @@ const NewYorkTimes = () => {
         <div className="text-center text-lg font-semibold">Loading...</div>
       ) : (
         <div className="max-w-6xl mx-auto">
-          <div className="mb-6">
-            <label className="block text-lg font-semibold mb-2">
+          <div className="mb-6 flex items-center gap-6 border-b border-gray-300 pb-4">
+            <label className="text-xl font-semibold text-gray-800">
               Filter by Category:
             </label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring focus:ring-blue-200"
+              className="px-4 py-2 border border-gray-400 bg-white text-gray-900 rounded-md focus:ring focus:ring-gray-300 focus:outline-none"
             >
               <option value="">All Categories</option>
               {[...new Set(stories.map((story) => story.subsection))].map(
                 (category, index) =>
                   category ? (
-                    <option key={index} value={category}>
+                    <option
+                      className="capitalize font-semibold"
+                      key={index}
+                      value={category}
+                    >
                       {category}
                     </option>
                   ) : null
               )}
             </select>
+            <SearchBar
+              query={query}
+              setQuery={setQuery}
+              handleSearch={handleSearch}
+            />
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
@@ -104,34 +89,50 @@ const NewYorkTimes = () => {
               {filteredStories.map((story, index) => (
                 <li
                   key={index}
-                  onClick={() => handleSelectedStory(story)}
                   className="bg-white rounded-xl shadow-lg p-6 flex items-start space-x-4 cursor-pointer hover:shadow-xl transition"
+                  onClick={() => setSelectedStory(story)}
                 >
                   <input
                     type="checkbox"
                     className="mt-1"
                     onClick={(e) => e.stopPropagation()}
-                    onChange={(e) => handleInputChange(e, story.id)}
+                    onChange={(e) =>
+                      setSelectedStoriesIds(
+                        e.target.checked
+                          ? [...selectedStoriesIds, story.id]
+                          : selectedStoriesIds.filter(
+                              (storyId) => storyId !== story.id
+                            )
+                      )
+                    }
                   />
                   <div className="flex-1">
-                    {story.multimedia.length > 0 && (
-                      <img
-                        src={story.multimedia[0]?.url}
-                        alt={story.title}
-                        className="w-full h-48 object-cover rounded-md mb-4"
-                      />
-                    )}
-                    <h2 className="text-xl font-semibold">{story.title}</h2>
+                    <img
+                      src={
+                        searchTerm
+                          ? `https://static01.nyt.com/${story.multimedia[0]?.url}`
+                          : story.multimedia[0]?.url
+                      }
+                      alt={story.title}
+                      className="w-full h-48 object-cover rounded-md mb-4"
+                    />
+
+                    <h2 className="text-xl font-semibold">
+                      {searchTerm ? story.snippet : story.title}
+                    </h2>
                     <p className="text-gray-500 text-sm mt-2">
-                      {story.published_date}
+                      {searchTerm ? story.pub_date : story.published_date}
                     </p>
                     <p className="uppercase text-gray-600 text-xs font-medium">
                       {story.subsection}
                     </p>
                   </div>
                   <button
-                    onClick={(e) => handleDeleteStory(e, story.id)}
                     className="text-red-500 hover:text-red-700 transition"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setStories(stories.filter((s) => s.id !== story.id));
+                    }}
                   >
                     ✖
                   </button>
