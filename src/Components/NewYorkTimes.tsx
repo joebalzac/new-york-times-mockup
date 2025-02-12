@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import useData from "../Hooks/useData";
 import SearchBar from "./SearchBar";
+import { BsCopy } from "react-icons/bs";
 
 interface Times {
   id: string;
@@ -25,7 +26,6 @@ const NewYorkTimes = () => {
   const [query, setQuery] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [page, setPage] = useState(1);
-
 
   const { data, error, isLoading } = useData<Times>(
     searchTerm
