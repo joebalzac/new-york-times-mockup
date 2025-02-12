@@ -24,10 +24,12 @@ const NewYorkTimes = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [query, setQuery] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [page, setPage] = useState(1);
+
 
   const { data, error, isLoading } = useData<Times>(
     searchTerm
-      ? `search/v2/articlesearch.json?q=${searchTerm}`
+      ? `search/v2/articlesearch.json?q=${searchTerm}&page=${page}`
       : "topstories/v2/home.json"
   );
 
@@ -51,7 +53,25 @@ const NewYorkTimes = () => {
   });
 
   const handleSearch = () => {
-    setSearchTerm(query.trim());
+    if (query.trim() === "") {
+      setSearchTerm("");
+    } else {
+      setSearchTerm(query.trim());
+    }
+  };
+
+  const handleNextPage = () => {
+    if (stories.length > 0) {
+      setPage((nextPage) => nextPage + 1);
+      console.log("This is firing");
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) {
+      setPage((prevPage) => prevPage - 1);
+      console.log("this is minus firing");
+    }
   };
 
   return (
@@ -146,6 +166,7 @@ const NewYorkTimes = () => {
                   >
                     ✖
                   </button>
+                  <BsCopy />
                 </li>
               ))}
             </ul>
@@ -173,6 +194,25 @@ const NewYorkTimes = () => {
               </div>
             )}
           </div>
+          {searchTerm && (
+            <div>
+              {page > 1 && (
+                <button
+                  className="bg-gray-200 text-gray-900 text-1xl px-4 py-2 font-semibold my-8 cursor-pointer"
+                  onClick={handlePrevPage}
+                >
+                  ← Prev Page
+                </button>
+              )}
+
+              <button
+                className="bg-gray-900 text-white text-1xl px-4 py-2 font-semibold my-8 cursor-pointer"
+                onClick={handleNextPage}
+              >
+                Next Page →
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

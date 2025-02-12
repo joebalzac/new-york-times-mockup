@@ -17,8 +17,18 @@ const SearchBar: React.FC<SearchBarProps> = ({
         type="text"
         placeholder="Search Articles"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          if (e.target.value.trim() === "") {
+            handleSearch();
+          }
+        }}
         className="w-full text-lg px-3 py-2 border-none focus:outline-none font-serif"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            handleSearch();
+          }
+        }}
       />
       <button
         onClick={handleSearch}
