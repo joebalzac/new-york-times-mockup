@@ -139,9 +139,11 @@ const NewYorkTimes = () => {
                   <div className="flex-1">
                     <img
                       src={
-                        searchTerm
-                          ? `https://static01.nyt.com/${story.multimedia[0]?.url}`
-                          : story.multimedia[0]?.url
+                        story.multimedia?.length
+                          ? searchTerm
+                            ? `https://static01.nyt.com/${story.multimedia[0].url}`
+                            : story.multimedia[0].url
+                          : ""
                       }
                       alt={story.title}
                       className="w-full h-48 object-cover rounded-md mb-4"
